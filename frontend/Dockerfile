@@ -1,5 +1,10 @@
 # Unprivileged Nginx: runs as non-root and listens on 8080
-FROM nginxinc/nginx-unprivileged:1.27-alpine
+FROM nginxinc/nginx-unprivileged:stable-alpine
+
+# Pull in the latest Alpine security patches (e.g. OpenSSL), then drop back to the non-root user
+USER root
+RUN apk upgrade --no-cache
+USER 101
 
 # API_UPSTREAM is substituted into the config at container start (envsubst templates)
 ENV API_UPSTREAM=api:8000
