@@ -1,0 +1,28 @@
+{{- if .Values.ingress.enabled }}
+{{- $fullname := include "jobtrack.fullname" . }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullname }}
+  labels:
+    {{- include "jobtrack.labels" . | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          # /api and /healthz go straight to the API, everything else to the frontend
+          - path: /api
+            pathType: Prefix
+            backend:
+              service: { name: {{ $fullname }}-api, port: { number: 8000 } }
+          - path: /healthz
+            pathType: Exact
+            backend:
+              service: { name: {{ $fullname }}-api, port: { number: 8000 } }
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: {{ $fullname }}-frontend, port: { number: 80 } }
+{{- end }}

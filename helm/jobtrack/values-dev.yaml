@@ -1,0 +1,10 @@
+# Dev overrides: single replicas, no autoscaling, debug logs.
+api:
+  replicas: 1
+  logLevel: DEBUG
+  autoscaling:
+    enabled: false
+frontend:
+  replicas: 1
+ingress:
+  host: jobtrack.local

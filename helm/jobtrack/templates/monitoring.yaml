@@ -1,0 +1,65 @@
+{{- $fullname := include "jobtrack.fullname" . }}
+{{- if .Values.metrics.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $fullname }}-api
+  labels:
+    {{- include "jobtrack.labels" . | nindent 4 }}
+    release: {{ .Values.metrics.serviceMonitor.releaseLabel }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: {{ .Values.metrics.serviceMonitor.interval }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ $fullname }}-alerts
+  labels:
+    {{- include "jobtrack.labels" . | nindent 4 }}
+    release: {{ .Values.metrics.serviceMonitor.releaseLabel }}
+spec:
+  groups:
+    - name: jobtrack.rules
+      rules:
+        - alert: JobTrackApiDown
+          expr: up{job="{{ $fullname }}-api"} == 0
+          for: 2m
+          labels: { severity: critical }
+          annotations:
+            summary: "JobTrack API target is down"
+        - alert: JobTrackHighErrorRate
+          expr: |
+            sum(rate(http_requests_total{job="{{ $fullname }}-api", status="5xx"}[5m]))
+              / sum(rate(http_requests_total{job="{{ $fullname }}-api"}[5m])) > 0.05
+          for: 5m
+          labels: { severity: warning }
+          annotations:
+            summary: "More than 5% of JobTrack API requests are failing"
+        - alert: JobTrackHighLatency
+          expr: |
+            histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="{{ $fullname }}-api"}[5m])) by (le)) > 0.5
+          for: 10m
+          labels: { severity: warning }
+          annotations:
+            summary: "JobTrack API p95 latency is above 500ms"
+{{- end }}
+{{- if .Values.metrics.grafanaDashboard.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $fullname }}-dashboard
+  labels:
+    {{- include "jobtrack.labels" . | nindent 4 }}
+    grafana_dashboard: "1"
+data:
+  jobtrack.json: |-
+    {{- .Files.Get "dashboards/jobtrack.json" | nindent 4 }}
+{{- end }}

@@ -1,0 +1,9 @@
+apiVersion: v2
+name: jobtrack
+description: JobTrack - job application tracker (FastAPI + Nginx + PostgreSQL)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+maintainers:
+  - name: Ahmed Elgamil
+    url: https://github.com/ahmed-elgamil-devops

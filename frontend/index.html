@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JobTrack</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>JobTrack</h1>
+    <p>Track every job application in one place.</p>
+  </header>
+
+  <main>
+    <section class="stats" id="stats">
+      <div class="card"><span id="s-total">0</span><small>Applied</small></div>
+      <div class="card"><span id="s-interview">0</span><small>Interviews</small></div>
+      <div class="card"><span id="s-offer">0</span><small>Offers</small></div>
+      <div class="card"><span id="s-response">0%</span><small>Response rate</small></div>
+    </section>
+
+    <form id="add-form">
+      <input name="company" placeholder="Company" required maxlength="120">
+      <input name="title" placeholder="Job title" required maxlength="120">
+      <select name="source">
+        <option>LinkedIn</option><option>Bayt</option><option>GulfTalent</option>
+        <option>Naukrigulf</option><option>Indeed</option><option>Company site</option>
+      </select>
+      <input name="applied_on" type="date">
+      <button type="submit">Add</button>
+    </form>
+
+    <div class="filters">
+      <button data-filter="" class="active">All</button>
+      <button data-filter="Applied">Applied</button>
+      <button data-filter="Interview">Interview</button>
+      <button data-filter="Offer">Offer</button>
+      <button data-filter="Rejected">Rejected</button>
+    </div>
+
+    <table>
+      <thead><tr><th>Company</th><th>Title</th><th>Source</th><th>Date</th><th>Status</th><th></th></tr></thead>
+      <tbody id="jobs"></tbody>
+    </table>
+    <p id="empty" class="muted">No applications yet. Add your first one above.</p>
+  </main>
+
+  <footer class="muted">API <span id="version">…</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>

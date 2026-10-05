@@ -1,0 +1,36 @@
+# Argo CD watches the Helm chart in this repo and keeps the cluster in sync with Git.
+# When CI bumps the image tag in values.yaml, Argo CD rolls out the new version automatically.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jobtrack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ahmed-elgamil-devops/jobtrack-gitops.git
+    targetRevision: main
+    path: helm/jobtrack
+    helm:
+      releaseName: jobtrack
+      valueFiles:
+        - values.yaml
+        - values-dev.yaml
+      parameters:
+        # Created once by scripts/setup-kind.sh (Argo CD can't keep a Helm-generated random password stable)
+        - name: postgres.existingSecret
+          value: jobtrack-db
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: jobtrack
+  syncPolicy:
+    automated:
+      prune: true      # delete resources removed from Git
+      selfHeal: true   # revert manual changes made with kubectl
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff: { duration: 10s, factor: 2, maxDuration: 3m }
