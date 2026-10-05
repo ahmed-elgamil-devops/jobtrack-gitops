@@ -5,31 +5,29 @@ api:
   image:
     repository: ghcr.io/ahmed-elgamil-devops/jobtrack-api
     # The CI pipeline updates this tag automatically after every successful build (GitOps).
-    tag: "latest"
+    tag: "b8996d6"
     pullPolicy: IfNotPresent
   replicas: 2
   port: 8000
   logLevel: INFO
   resources:
-    requests: { cpu: 100m, memory: 128Mi }
-    limits: { cpu: 500m, memory: 256Mi }
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: 500m, memory: 256Mi}
   autoscaling:
     enabled: true
     minReplicas: 2
     maxReplicas: 5
     targetCPUUtilizationPercentage: 70
-
 frontend:
   image:
     repository: ghcr.io/ahmed-elgamil-devops/jobtrack-frontend
-    tag: "latest"
+    tag: "b8996d6"
     pullPolicy: IfNotPresent
   replicas: 2
   port: 8080
   resources:
-    requests: { cpu: 50m, memory: 32Mi }
-    limits: { cpu: 200m, memory: 64Mi }
-
+    requests: {cpu: 50m, memory: 32Mi}
+    limits: {cpu: 200m, memory: 64Mi}
 postgres:
   image: postgres:16-alpine
   database: jobtrack
@@ -39,14 +37,12 @@ postgres:
   existingSecret: ""
   storage: 1Gi
   resources:
-    requests: { cpu: 100m, memory: 128Mi }
-    limits: { cpu: 500m, memory: 512Mi }
-
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: 500m, memory: 512Mi}
 ingress:
   enabled: true
   className: nginx
   host: jobtrack.local
-
 # Creates a ServiceMonitor so kube-prometheus-stack scrapes the API /metrics endpoint.
 metrics:
   serviceMonitor:
