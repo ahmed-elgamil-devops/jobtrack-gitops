@@ -19,13 +19,13 @@ env:
 jobs:
   test:
     name: Lint & test API
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: api
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -38,30 +38,30 @@ jobs:
 
   helm-lint:
     name: Lint Helm chart
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: azure/setup-helm@v4
+      - uses: actions/checkout@v7
+      - uses: azure/setup-helm@v5
       - run: helm lint helm/jobtrack -f helm/jobtrack/values-dev.yaml
       - run: helm template jobtrack helm/jobtrack -f helm/jobtrack/values-dev.yaml > /dev/null
 
   build-scan-push:
     name: Build, scan & push ${{ matrix.service }}
     needs: [test, helm-lint]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         service: [api, frontend]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set image tag (short commit SHA)
         run: echo "TAG=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: Build image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.service }}
           load: true
@@ -89,14 +89,14 @@ jobs:
 
       - name: Upload Trivy results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-${{ matrix.service }}.sarif
           category: trivy-${{ matrix.service }}
 
       - name: Log in to GHCR
         if: github.event_name == 'push'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -114,9 +114,9 @@ jobs:
     name: Bump image tags (GitOps)
     needs: build-scan-push
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Update tags in values.yaml
         run: |
           TAG=${GITHUB_SHA::7}
