@@ -5,7 +5,7 @@ api:
   image:
     repository: ghcr.io/ahmed-elgamil-devops/jobtrack-api
     # The CI pipeline updates this tag automatically after every successful build (GitOps).
-    tag: "b8996d6"
+    tag: "7481a38"
     pullPolicy: IfNotPresent
   replicas: 2
   port: 8000
@@ -21,7 +21,7 @@ api:
 frontend:
   image:
     repository: ghcr.io/ahmed-elgamil-devops/jobtrack-frontend
-    tag: "b8996d6"
+    tag: "7481a38"
     pullPolicy: IfNotPresent
   replicas: 2
   port: 8080
